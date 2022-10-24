@@ -1,11 +1,4 @@
-const word = 'перестановки';
-
 const N = 4;
-
-const matrix = [
-    [2,0,1],
-    [3,0,2,1],
-];
 
 const columnMatrix = [3,0,2,1];
 const rowMatrix = [2,0,1];
@@ -13,58 +6,57 @@ const rowMatrix = [2,0,1];
 const encryption = (word) => {
     const wordMatrix = word.split('').map((item, index) => {
         if(index > 0) {
-            if (index - 4 === 0) {
-                const substring = word.split('').slice(index - 4, index);
+            if (index - N === 0) {
+                const substring = word.split('').slice(index - N, index);
                 return substring;
             }
-            if (index % 4 === 0) {
-                const substring = word.split('').slice(index - 4, index);
+            if (index % N === 0) {
+                const substring = word.split('').slice(index - N, index);
                 return substring;
             }
-            if( ((word.split('').length - index) === 3)) {
+            if( ((word.split('').length - index) === N - 1)) {
                 const substring = word.split('').slice(index -1, word.split('').length);
                 return substring;
             } 
         }
     }).filter(item => item)
     
-    const newMatrix = rowMatrix.map(position => wordMatrix[position])
+    const sortedMatrix = rowMatrix.map(position => wordMatrix[position])
     
-    const sorterColumn = [...columnMatrix].sort();
+    const sortedColumnValues = [...columnMatrix].sort();
     
-    return sorterColumn.map((item, index) => {
-        if (index <= newMatrix.length) {
-            return newMatrix.map(matrix => matrix[columnMatrix.indexOf(item)]).join('')
+    return sortedColumnValues.map((item, index) => {
+        if (index <= sortedMatrix.length) {
+            return sortedMatrix.map(matrix => matrix[columnMatrix.indexOf(item)]).join('')
         }
     }).join('')
 }
 
-const deCryption = (wordIncome) => {
-    const word = wordIncome.split("").reverse().join("");
-    const wordMatrix = word.split('').map((item, index) => {
+const decryption = (wordIncome) => {
+    const wordReversed = wordIncome.split("").reverse().join("");
+    const wordMatrix = wordReversed.split('').map((item, index) => {
         if(index > 0) {
-            if (index - 3 === 0) {
-                const substring = word.split('').slice(index - 3, index);
+            if (index - (N - 1) === 0) {
+                const substring = wordReversed.split('').slice(index - (N - 1), index);
                 return substring.reverse();
             }
-            if (index % 3 === 0) {
-                const substring = word.split('').slice(index - 3, index);
+            if (index % (N - 1) === 0) {
+                const substring = wordReversed.split('').slice(index - (N - 1), index);
                 return substring.reverse();
             }
-            if( ((word.split('').length - index) === 2)) {
-                const substring = word.split('').slice(index -1, word.split('').length);
+            if( ((wordReversed.split('').length - index) === (N / 2))) {
+                const substring = wordReversed.split('').slice(index -1, wordReversed.split('').length);
                 return substring.reverse();
             } 
         }
     }).filter(item => item).reverse()
 
-    const newMatrix = columnMatrix.map(position => wordMatrix[position])
+    const sortedMatrix = columnMatrix.map(position => wordMatrix[position])
     
     let finalResult = '';
 
     rowMatrix.map((position,index) => {
-        newMatrix.map(matrix => {
-            console.log(matrix[rowMatrix.indexOf(index)])
+        sortedMatrix.map(matrix => {
             finalResult += matrix[rowMatrix.indexOf(index)]
         })
     })
@@ -72,8 +64,14 @@ const deCryption = (wordIncome) => {
     return finalResult
 }
 
-const encrypted = encryption(word);
-const decrypted = deCryption(encrypted)
+const word = 'перестановки';
 
-console.log(encrypted)
-console.log(decrypted)
+console.log(`Початкове слово: "${word}"`)
+
+const encryptedText = encryption(word);
+
+console.log(`Закодоване слово: "${encryptedText}"`)
+
+const decryptedText = decryption(encryptedText);
+
+console.log(`Розкодоване слово: "${decryptedText}"`)
