@@ -1,4 +1,4 @@
-RELIABILITY = 50;
+K = 4127;
 
 class RSA
     @@x, @@y = 0, 0
@@ -19,6 +19,28 @@ class RSA
         ciphertext ** @d % @n
     end
 
+    def miller_rabin_prime?(n, g)
+        d = n - 1
+        s = 0
+        a = 0
+        while d % 2 == 0
+            d /= 2
+            s += 1
+        end
+        g.times do |iterator|
+            a = 2 + rand(n - 4)
+            x = (a**d) % n
+            next if x == 1 || x == n - 1
+            for r in (1..s - 1)
+            x = x.pow(2, n)
+            return false if x == 1
+            break if x == n - 1
+            end
+            return false if x != n - 1
+        end
+        true
+    end
+
     private
     def generate_open_key(e, phi)
         result = e
@@ -34,27 +56,6 @@ class RSA
 
         result
     end
-
-    def miller_rabin_prime?(n, g)
-        d = n - 1
-        s = 0
-        while d % 2 == 0
-            d /= 2
-            s += 1
-        end
-        g.times do
-            a = 2 + rand(n - 4)
-            x = a.pow(d, n)
-            next if x == 1 || x == n - 1
-            for r in (1..s - 1)
-            x = x.pow(2, n)
-            return false if x == 1
-            break if x == n - 1
-            end
-            return false if x != n - 1
-        end
-        true
-    end
     
     def generateRandomNumbers
         p,q = 0
@@ -62,7 +63,7 @@ class RSA
         while true
             p = rand(1...100)
     
-            if miller_rabin_prime?(p, RELIABILITY)
+            if miller_rabin_prime?(p, K)
                 break;
             end
         end
@@ -73,7 +74,7 @@ class RSA
             iterator += 1;
             q = p + iterator
     
-            if miller_rabin_prime?(q, RELIABILITY)
+            if miller_rabin_prime?(q, K)
                 break;
             end
         end
@@ -109,21 +110,17 @@ class RSA
             return res
         end
     end
-
-    def phi m
-        result = 1;
-        i = 2
-        while i < m do
-            result += 1 if (gcdex(i, m) == 1)
-            i += 1
-        end
-
-        result
-    end
 end
+rsa = RSA.new()
+
+test_number = 12
+
+puts "Тест простоти числа: #{test_number}"
+puts "#{rsa.miller_rabin_prime?(test_number, K) ? "Число просте" : "Число складене"}"
+
+puts "-------------------------"
 
 message = 18
-rsa = RSA.new()
 
 puts "Повідомлення: #{message}"
 encrypted_text = rsa.encryption(message)
