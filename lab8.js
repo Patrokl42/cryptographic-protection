@@ -56,37 +56,22 @@ const millerRabinTest = (number) => {
 function findPrimitive(n) {
   let s = new Set();
 
-  // Check if n is prime or not
   if (isPrime(n) == false) return -1;
-
-  // Find value of Euler Totient function of n
-  // Since n is a prime number, the value of Euler
-  // Totient function is n-1 as there are n-1
-  // relatively prime numbers.
   let phi = n - 1;
 
-  // Find prime factors of phi and store in a set
   findPrimefactors(s, phi);
 
-  // Check for every number from 2 to phi
   for (let r = 2; r <= phi; r++) {
-    // Iterate through all prime factors of phi.
-    // and check if we found a power with value 1
     let flag = false;
     for (let it of s) {
-      // Check if r^((phi)/primefactors) mod n
-      // is 1 or not
       if (power(r, phi / it, n) == 1) {
         flag = true;
         break;
       }
     }
-
-    // If there was no power with value 1.
     if (flag == false) return r;
   }
 
-  // If no primitive root found
   return -1;
 }
 
@@ -115,7 +100,7 @@ const generateRandomP = () => {
   let p;
 
   while (true) {
-    p = getRandomInt(Number(100) - 1);
+    p = getRandomInt(Number(30) - 1);
 
     if (millerRabinTest(p)) {
       break;
@@ -125,38 +110,66 @@ const generateRandomP = () => {
   return p;
 };
 
+function getRandomIntInRange(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
+  }
+
 const deffieHellman = () => {
   let P, G, x, a, y, b, ka, kb;
 
-  // A prime number P is taken
   P = generateRandomP();
 
-  // A primitive root for P, G is taken
   G = get_g(P);
 
-  console.log(P, G);
-
-  // Alice will choose the private key a
-  // a is the chosen private key
   a = 4;
-
-  // Gets the generated key
-  x = power(G, a, P);
-
-  // Bob will choose the private key b
-  // b is the chosen private key
   b = 3;
 
-  // Gets the generated key
+  x = power(G, a, P);
   y = power(G, b, P);
 
-  // Generating the secret key after the exchange
-  // of keys(millerRabinTest(9)
-  ka = power(y, a, P); // Secret key for Alice
-  kb = power(x, b, P); // Secret key for Bob
+  ka = power(y, a, P);
+  kb = power(x, b, P);
 
-  console.log(ka);
-  console.log(kb);
+  console.log('Секретний ключ', ka);
+  console.log('Отримане значення від першого користувача:', x);
+  console.log('Отримане значення від другого користувача:', y);
 };
 
-console.log(deffieHellman());
+
+const alGamal = () => {
+  let P, G, X, Y, M;
+  P = generateRandomP();
+  G = get_g(P);
+
+  X = getRandomIntInRange(1, P);
+  Y = power(G, X, P);
+
+  message = getRandomIntInRange(0, P)
+
+  console.log('Повідомлення: ', message)
+
+  const [a, b] = encrypt(message, P, G, Y);
+
+  console.log('Зашифроване повідомлення: ', [a, b]);
+  console.log('Розшифроване повідомлення: ', decrypt(a, b, X, P));
+
+  function encrypt(value, p, g, y){
+    const k = getRandomInt(1, p - 1);
+    const a = power(g, k, p)
+    const b = ((Math.pow(y, k)) * value) % p
+    return [a, b]
+  }
+  
+  function decrypt(a, b, x, p){
+    const value = (b * (Math.pow(a,(p - 1 - x)))) % p;
+    return value;
+  }
+}
+
+console.log('Алгоритм Діффі-Хелмана');
+deffieHellman();
+console.log('==============================');
+console.log('Алгоритм Ель-Гамаля');
+alGamal();
